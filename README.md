@@ -11,7 +11,8 @@ the same. This plugin fixes that, with zero changes to the app itself:
   top-center.
 - **Per-profile rail icon** — replace the initial letter in the profile square
   with any image: the logo of the company that agent works with, a mascot, a
-  flag. Upload or URL.
+  flag. Upload or URL. **Size slider included (20–36px)** — grow the squares
+  that carry icons so logos stay readable.
 - **Per-profile chat backdrop** — a custom image (opacity slider included) or
   a soft color wash derived from the profile's color, behind the transcript.
 - **Per-profile color override** — defaults to the same deterministic hue the
@@ -20,7 +21,14 @@ the same. This plugin fixes that, with zero changes to the app itself:
 All of it is configured per profile from a settings pane, persists across
 restarts, and hot-reloads like any desktop plugin.
 
-<!-- screenshots -->
+<p>
+  <img src="docs/screenshot-linus.png" alt="linus profile: green wrench rail icon, titlebar chip, topographic backdrop" width="49%">
+  <img src="docs/screenshot-andrew.png" alt="andrew profile: violet owl rail icon, titlebar chip, nebula backdrop" width="49%">
+</p>
+<p align="center"><i>Same app, two profiles — instantly recognizable. Icons in the rail squares, chip in the titlebar, backdrop per profile.</i></p>
+<p>
+  <img src="docs/screenshot-pane.png" alt="profile identity settings pane" width="420">
+</p>
 
 ## Install
 
@@ -50,8 +58,9 @@ appear on its own. Manage it any time in **Settings → Plugins**.
 
 1. Open the **profile identity** pane (right side).
 2. Switch to a profile from the rail; the pane configures that profile.
-3. Set a **rail icon** (company logo works great at 20px), a **backdrop
-   image**, an **opacity** level, and optionally a **color override**.
+3. Set a **rail icon** (company logo works great), tune its **size**
+   (20–36px), set a **backdrop image**, an **opacity** level, and optionally a
+   **color override**.
 4. Repeat per profile once — every profile swap is instantly recognizable
    from then on.
 

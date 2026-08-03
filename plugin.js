@@ -55,6 +55,9 @@ const RAIL_SELECTOR = '[data-slot="profile-rail"]'
 const LAYER_ATTR = 'data-profile-identity-layer'
 const ICON_ATTR = 'data-profile-identity-icon'
 const DEFAULT_IMAGE_OPACITY = 0.14
+const DEFAULT_ICON_SIZE = 24 // stock rail squares are 20px; icons read better bigger
+const MAX_ICON_SIZE = 36
+const MIN_ICON_SIZE = 20
 
 // Same 12 swatches as the app's rail color picker (30° hue steps, same S/L).
 const SWATCHES = Array.from({ length: 12 }, (_, i) => `hsl(${i * 30} 68% 58%)`)
@@ -100,7 +103,13 @@ function loadCfg(profile) {
 }
 
 function loadPrefs() {
-  return { chip: true, wash: true, ...(store?.get('prefs', {}) || {}) }
+  return { chip: true, iconSize: DEFAULT_ICON_SIZE, wash: true, ...(store?.get('prefs', {}) || {}) }
+}
+
+// Stored icon size in px, clamped to the supported range.
+function iconSize() {
+  const n = Number(loadPrefs().iconSize)
+  return Number.isFinite(n) ? Math.min(MAX_ICON_SIZE, Math.max(MIN_ICON_SIZE, n)) : DEFAULT_ICON_SIZE
 }
 
 function saveCfg(profile, patch) {
@@ -303,22 +312,33 @@ function startInjector() {
     let img = button.querySelector(`[${ICON_ATTR}]`)
     if (!src) {
       img?.remove()
+      if (button.dataset.piSized) {
+        button.style.width = ''
+        button.style.height = ''
+        delete button.dataset.piSized
+      }
       return
     }
+    const size = iconSize()
+    // Grow the square itself so the icon has room (20px stock is cramped).
+    button.style.width = `${size}px`
+    button.style.height = `${size}px`
+    button.dataset.piSized = '1'
     if (!img) {
       img = document.createElement('img')
       img.setAttribute(ICON_ATTR, '')
       img.alt = ''
       img.draggable = false
       // Cover the initial completely: same tint as the square, logo centered.
-      // contain (not cover) so wide company logos survive the 20px tile.
+      // contain (not cover) so wide company logos survive the small tile.
       img.style.cssText =
-        'position:absolute;inset:0;box-sizing:border-box;padding:2px;' +
+        'position:absolute;inset:0;box-sizing:border-box;' +
         'width:100%;height:100%;object-fit:contain;border-radius:inherit;pointer-events:none;'
       button.style.position = 'relative'
       button.appendChild(img)
     }
     img.src = src
+    img.style.padding = `${Math.max(2, size * 0.08)}px`
     // Re-sync the tint every sweep: the square darkens slightly when active.
     img.style.backgroundColor = getComputedStyle(button).backgroundColor
   }
@@ -703,6 +723,22 @@ function IdentityPane() {
         title: 'rail icon — replace the initial',
         children: [
           jsx(ImageControls, { kind: 'icon', profile }),
+          jsxs('label', {
+            className: 'flex items-center gap-2 text-[0.6875rem] text-(--ui-text-tertiary)',
+            children: [
+              'size',
+              jsx('input', {
+                className: 'flex-1',
+                max: MAX_ICON_SIZE,
+                min: MIN_ICON_SIZE,
+                step: 2,
+                type: 'range',
+                value: iconSize(),
+                onChange: event => savePrefs({ iconSize: Number(event.target.value) })
+              }),
+              `${iconSize()}px`
+            ]
+          }),
           jsx('div', {
             className: 'text-[0.6875rem] text-(--ui-text-tertiary)',
             children: 'shown in the bottom-left profile square and the titlebar chip — e.g. a company logo.'
