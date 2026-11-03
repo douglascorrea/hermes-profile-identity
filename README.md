@@ -18,8 +18,10 @@ the same. This plugin fixes that, with zero changes to the app itself:
 - **Per-profile color override** — defaults to the same deterministic hue the
   rail already uses, so everything stays consistent.
 
-All of it is configured per profile from a settings pane, persists across
-restarts, and hot-reloads like any desktop plugin.
+All of it is configured per profile from **Settings → Plugins → Profile
+Identity**, persists across restarts, and hot-reloads like any desktop plugin.
+On older Hermes builds without the plugin settings API, a right-side settings
+pane remains available as a compatibility fallback.
 
 <p>
   <img src="docs/screenshot-linus.png" alt="linus profile: green wrench rail icon, titlebar chip, topographic backdrop" width="49%">
@@ -56,8 +58,9 @@ appear on its own. Manage it any time in **Settings → Plugins**.
 
 ## Usage
 
-1. Open the **profile identity** pane (right side).
-2. Switch to a profile from the rail; the pane configures that profile.
+1. Open **Settings → Plugins → Profile Identity** (or the right-side
+   **profile identity** pane on older Hermes builds).
+2. Switch to a profile from the rail; the settings configure that profile.
 3. Set a **rail icon** (company logo works great), tune its **size**
    (20–36px), set a **backdrop image**, an **opacity** level, and optionally a
    **color override**.
@@ -74,8 +77,9 @@ A single uncompiled ESM file using only the official
 surface plus what the SDK's security model explicitly grants (full renderer
 authority):
 
-- The chip and pane are contracted contribution areas (`titleBar.center`,
-  `panes`).
+- The chip uses the `titleBar.center` contribution area. Preferences use
+  `ctx.registerSettingsPage`; only older hosts fall back to a `panes`
+  contribution. Modern hosts reserve no side panel or collapsed rail.
 - The backdrop mirrors core's own `<Backdrop/>` recipe (absolute, inset-0,
   pointer-events:none) inside each `[data-chat-surface]` container, driven by
   a `MutationObserver`, reacting to `host.state.profile` changes.
@@ -112,6 +116,15 @@ authority):
 Edit `plugin.js` inside any Hermes home's
 `desktop-plugins/profile-identity/` — every save hot-reloads in place. Copy it
 back here and open a PR.
+
+Run the dependency-free registration tests with Node.js 20 or newer:
+
+```bash
+node --test tests/*.test.mjs
+```
+
+The tests execute the plugin registration with SDK/DOM test doubles; they do
+not replace a smoke test in the actual Hermes Desktop app.
 
 ## License
 

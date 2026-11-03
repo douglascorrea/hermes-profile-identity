@@ -12,7 +12,8 @@
  *   3. A per-profile RAIL ICON: replace the initial letter in the profile
  *      square with any image (URL or upload) — e.g. the logo of the company
  *      that agent works with. Also shown in the titlebar pill.
- *   4. A settings pane (right side) to pick color override, backdrop, icon.
+ *   4. A Settings → Plugins page for colors, backdrops and icons (a right-side
+ *      pane remains available on hosts without the settings-page API).
  *
  * Color default = the same deterministic hue the rail uses (profileColor), so
  * identity stays consistent with the squares; a per-profile override wins.
@@ -855,13 +856,23 @@ export default {
       render: () => jsx(ProfileChip, {})
     })
 
-    ctx.register({
-      id: 'pane',
-      area: 'panes',
-      title: 'profile identity',
-      data: { placement: 'right', width: '272px' },
-      render: () => jsx(IdentityPane, {})
-    })
+    // Newer hosts give plugins a dedicated Settings page. Keep the pane only
+    // as a compatibility fallback; do not reserve a side column on modern hosts.
+    if (typeof ctx.registerSettingsPage === 'function') {
+      ctx.registerSettingsPage({
+        id: 'settings',
+        title: 'Profile Identity',
+        render: () => jsx(IdentityPane, {})
+      })
+    } else {
+      ctx.register({
+        id: 'pane',
+        area: 'panes',
+        title: 'profile identity',
+        data: { placement: 'right', width: '272px' },
+        render: () => jsx(IdentityPane, {})
+      })
+    }
 
     startInjector()
   }
