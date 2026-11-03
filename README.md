@@ -30,6 +30,25 @@ restarts, and hot-reloads like any desktop plugin.
   <img src="docs/screenshot-pane.png" alt="profile identity settings pane" width="420">
 </p>
 
+## Window titles
+
+Main and secondary chat windows use `Hermes - <profile>`. The title follows
+`host.state.focusedSessionProfile`, falling back to the connected profile and
+then `default`. Auxiliary windows keep their own titles.
+
+Title subscriptions are removed on disable/reload. The previous title is
+restored unless another component has since replaced the plugin's title.
+This does not change the OS application name or dock/taskbar grouping.
+
+Run its dependency-free tests with Node.js 20 or newer:
+
+```bash
+node --test tests/window-title.test.mjs
+```
+
+These tests use SDK/DOM doubles; they do not replace a native Electron smoke
+test.
+
 ## Install
 
 One file, no build step — the app watches the folder and loads it within
