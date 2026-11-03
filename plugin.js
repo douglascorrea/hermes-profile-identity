@@ -840,6 +840,30 @@ function IdentityPane() {
   })
 }
 
+// ------------------------------------------------------------ window title --
+
+function startWindowTitle(ctx) {
+  // Only chat windows own profile-based titles; preserve HUD/browser/etc.
+  const kind = new URLSearchParams(window.location.search).get('win')
+  if (kind && kind !== 'secondary') return
+
+  const previousTitle = document.title
+  let ownedTitle = null
+  const focused = host.state.focusedSessionProfile
+  const update = () => {
+    const profile = focused?.get()?.trim() || host.state.profile.get()?.trim() || 'default'
+    ownedTitle = `Hermes - ${profile}`
+    if (document.title !== ownedTitle) document.title = ownedTitle
+  }
+  const unsubscribers = [host.state.profile.subscribe(update)]
+  if (focused) unsubscribers.push(focused.subscribe(update))
+  ctx.onDispose(() => {
+    unsubscribers.forEach(unsubscribe => unsubscribe())
+    // Do not undo a subsequent title change made by the app or another plugin.
+    if (document.title === ownedTitle) document.title = previousTitle
+  })
+}
+
 // ----------------------------------------------------------------- plugin --
 
 export default {
@@ -847,6 +871,7 @@ export default {
   name: 'Profile Identity',
   register(ctx) {
     store = ctx.storage
+    startWindowTitle(ctx)
 
     ctx.register({
       id: 'chip',
